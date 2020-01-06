@@ -1,95 +1,103 @@
 #include "pch.h"
 #include <cmath>
-#include <map>
 #include <iostream>
 #include <fstream>
 #include <ctime>
 #include <string>
+
+std::ofstream stream;
 
 double S_t(double t)
 {
 	return pow(t, 3) * (10 + t * (-15 + 6 * t));
 }
 
+void formatAndWrite(double value)
+{
+
+	std::string number = std::to_string(value); // Im skript O
+	size_t found = number.find(".");
+	if (found != std::string::npos) // only for google tables
+		number[found] = ',';
+
+	stream << number << std::endl;
+}
+
 void PerlinNoise(int rang);
-void lerp(std::map<float, float> timeValuePairs, float* signaltimes, float timediff);
+void lerp(float* signalvalues, float* signaltimes, float timediff);
 
 int main()
 {
-	PerlinNoise(2);
+	try
+	{
+		stream.open("test.txt");
+		PerlinNoise(3);
+		stream.close();
+	}
+	catch (const std::exception&)
+	{
+		if (stream.is_open())
+			stream.close();
+	}
 }
 
 void PerlinNoise(int rang)
 {
 	int signalCount = (int)std::pow(2, rang - 1) + 1; // Anzahl an Fixpunkten
 	float* signalTimes = new float[signalCount];
+	float* signalValues = new float[signalCount];
+
 	signalTimes[0] = 0;
 	signalTimes[signalCount - 1] = 1; // t erster und letzter Fixpunkt stehen fest
-	float timeDiff = rang == 1 ? 1 : 1.f / ((float)signalCount - 1); // wie viel Zeit vergeht zwischen den einzelnen Fixpunkten
-	float signalTime = timeDiff;
+
+	float stepSize = rang == 1 ? 1 : 1.f / ((float)signalCount - 1); // wie viel Zeit vergeht zwischen den einzelnen Fixpunkten
+	float signalTime = stepSize;
 	for (int i = 1; i < signalCount - 1; i++) // speichern der Zeiten von Fixpunkten
 	{
 		signalTimes[i] = signalTime;
-		signalTime += timeDiff;
-		std::cout << signalTimes[i] << std::endl;
+		signalTime += stepSize;
 	}
-	std::map<float, float> timeValuePairs;
 
 	srand(time(0));
-	// erstellen von Wertepaaren t und s, für zeitpunkt t und wert s(t)
+	// erstellen der Fixwerte
 	for (int i = 0; i < signalCount; i++)
 	{
 		float signalValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // random from 0 to 1 inclusive
-		timeValuePairs.emplace(signalTimes[i], signalValue);
+		signalValues[i] = signalValue;
 	}
 
-	lerp(timeValuePairs, signalTimes, timeDiff);
+	lerp(signalValues, signalTimes, stepSize); // interpolieren zwischen den Fixwerten
 	std::cout << std::endl;
 }
 
-void lerp(std::map<float, float> timeValuePairs, float* signaltimes, float timediff)
+void lerp(float* signalvalues, float* signaltimes, float timediff)
 {
-	std::ofstream stream;
-	stream.open("test.txt");
-	int timeIndex = 0;
-	double timeStep = 0.01; // Zeitschritt für Berechnung
-	float currentTime = signaltimes[timeIndex]; // Beginn bei 0
-	float currentSignalValue = timeValuePairs.at(currentTime); // Wert beim aktuellen Signal
+	int index = 0;
+	float timeStep = 0.01f; // Zeitschritt für Berechnung
+	float currentTime = signaltimes[index];
+	float currentValue = signalvalues[index];
+	double val;
 
-	std::string number = std::to_string(std::abs(currentSignalValue)); // Im skript O
-	size_t found = number.find(".");
-	if (found != std::string::npos)
-		number[found] = ',';
+	formatAndWrite(signalvalues[0]);
 
-	stream << number << std::endl;
-
-	int nextSignalIndex = 1;
-	float nextSignalValue = timeValuePairs.at(signaltimes[nextSignalIndex]); // todo: lesbarkeit verbessern
-	for (currentTime; currentTime < 1; )
-	{		
+	for ( ; ; )
+	{	
 		currentTime += timeStep; // erhöhen des Zeitcounter um den Zeitschritt
 		
 		if (currentTime >= 1)
 			return;
 
-		auto t = (currentTime - signaltimes[timeIndex]) / (signaltimes[nextSignalIndex] - signaltimes[timeIndex]);
-		number = std::to_string(currentSignalValue + (nextSignalValue - currentSignalValue) * S_t(t));
+		auto t = (currentTime - signaltimes[index]) / (signaltimes[index + 1] - signaltimes[index]);
+		val = currentValue + (signalvalues[index + 1] - currentValue) * S_t(t);
 
-		size_t found = number.find(".");
-		if (found != std::string::npos)
-			number[found] = ',';
-		
-		stream << number << std::endl;
+		formatAndWrite(val);
 
-		// Wenn ein Signalpunkt überschritten wird, wird das aktuell nächste Signal auf das aktuelle und das übernächste auf das nächste gesetzt
-		if (currentTime >= signaltimes[nextSignalIndex])
+		// Wenn ein Signalpunkt überschritten wird, wird aktuelles Signal auf nächstes gesetzt
+		if (currentTime >= signaltimes[index + 1])
 		{
-			timeIndex++;
-			currentSignalValue = timeValuePairs.at(signaltimes[nextSignalIndex]);
-			nextSignalIndex++;
-			nextSignalValue = timeValuePairs.at(signaltimes[nextSignalIndex]);
+			index++;
+			currentValue = signalvalues[index];
+			currentTime = signaltimes[index];
 		}
 	}
-	stream.close();
 }
-
