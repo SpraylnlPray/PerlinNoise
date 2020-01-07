@@ -6,6 +6,10 @@
 #include <string>
 
 std::ofstream stream;
+float* signalTimes = nullptr;
+float* signalValues = nullptr;
+float stepSize = 0;
+int signalCount = 0;
 
 double S_t(double t)
 {
@@ -23,15 +27,16 @@ void formatAndWrite(double value)
 	stream << number << std::endl;
 }
 
-void PerlinNoise(int rang);
-void lerp(float* signalvalues, float* signaltimes, float timediff);
+void PerlinNoise(int rang, int secs);
+void SetInitVals(int rang, int secs);
+void Interpolate(int secs);
 
 int main()
 {
 	try
 	{
 		stream.open("test.txt");
-		PerlinNoise(3);
+		PerlinNoise(2, 1);
 		stream.close();
 	}
 	catch (const std::exception&)
@@ -41,18 +46,12 @@ int main()
 	}
 }
 
-void PerlinNoise(int rang)
+void PerlinNoise(int rang, int secs)
 {
-	int signalCount = (int)std::pow(2, rang - 1) + 1; // Anzahl an Fixpunkten
-	float* signalTimes = new float[signalCount];
-	float* signalValues = new float[signalCount];
+	SetInitVals(rang, secs);
 
-	signalTimes[0] = 0;
-	signalTimes[signalCount - 1] = 1; // t erster und letzter Fixpunkt stehen fest
-
-	float stepSize = rang == 1 ? 1 : 1.f / ((float)signalCount - 1); // wie viel Zeit vergeht zwischen den einzelnen Fixpunkten
 	float signalTime = stepSize;
-	for (int i = 1; i < signalCount - 1; i++) // speichern der Zeiten von Fixpunkten
+	for (int i = 1; i < signalCount * secs - 1; i++) // speichern der Zeiten von Fixpunkten
 	{
 		signalTimes[i] = signalTime;
 		signalTime += stepSize;
@@ -60,44 +59,55 @@ void PerlinNoise(int rang)
 
 	srand(time(0));
 	// erstellen der Fixwerte
-	for (int i = 0; i < signalCount; i++)
+	for (int i = 0; i < signalCount * secs; i++)
 	{
 		float signalValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // random from 0 to 1 inclusive
 		signalValues[i] = signalValue;
 	}
 
-	lerp(signalValues, signalTimes, stepSize); // interpolieren zwischen den Fixwerten
-	std::cout << std::endl;
+	Interpolate(secs); // interpolieren zwischen den Fixwerten
 }
 
-void lerp(float* signalvalues, float* signaltimes, float timediff)
+void SetInitVals(int rang, int secs)
+{
+	signalCount = (int)std::pow(2, rang - 1) + 1; // Anzahl an Fixpunkten
+	signalTimes = new float[signalCount * secs];
+	signalValues = new float[signalCount * secs];
+
+	signalTimes[0] = 0;
+	signalTimes[signalCount * secs - 1] = 1; // t erster und letzter Fixpunkt stehen fest
+
+	stepSize = rang == 1 ? 1 : 1.f / ((float)signalCount - 1); // wie viel Zeit vergeht zwischen den einzelnen Fixpunkten
+}
+
+void Interpolate(int totaltime)
 {
 	int index = 0;
 	float timeStep = 0.01f; // Zeitschritt für Berechnung
-	float currentTime = signaltimes[index];
-	float currentValue = signalvalues[index];
+	float currentTime = signalTimes[index];
+	float currentValue = signalValues[index];
 	double val;
 
-	formatAndWrite(signalvalues[0]);
+	formatAndWrite(signalValues[0]);
 
 	for ( ; ; )
 	{	
 		currentTime += timeStep; // erhöhen des Zeitcounter um den Zeitschritt
 		
-		if (currentTime >= 1)
+		if (currentTime >= totaltime)
 			return;
 
-		auto t = (currentTime - signaltimes[index]) / (signaltimes[index + 1] - signaltimes[index]);
-		val = currentValue + (signalvalues[index + 1] - currentValue) * S_t(t);
+		auto t = (currentTime - signalTimes[index]) / (signalTimes[index + 1] - signalTimes[index]);
+		val = currentValue + (signalValues[index + 1] - currentValue) * S_t(t);
 
 		formatAndWrite(val);
 
 		// Wenn ein Signalpunkt überschritten wird, wird aktuelles Signal auf nächstes gesetzt
-		if (currentTime >= signaltimes[index + 1])
+		if (currentTime >= signalTimes[index + 1])
 		{
 			index++;
-			currentValue = signalvalues[index];
-			currentTime = signaltimes[index];
+			currentValue = signalValues[index];
+			currentTime = signalTimes[index];
 		}
 	}
 }
