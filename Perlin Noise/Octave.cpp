@@ -10,7 +10,7 @@ void Octave::create()
 
 	save(_signalValues[0]); 
 
-	for (; ; )
+	while(true)
 	{
 		currentTime += _stepSize; // erhöhen des Zeitcounter um den Zeitschritt
 

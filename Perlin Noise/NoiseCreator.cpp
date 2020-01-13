@@ -3,7 +3,7 @@
 
 NoiseCreator::NoiseCreator(int octaveCount, int secs)
 {
-	std::cout << "Initiated Noise Creator with " << octaveCount << " octaves for " << secs << " seconds." << std::endl;
+	std::cout << "Initialized Noise Creator with " << octaveCount << " octaves for " << secs << " seconds." << std::endl;
 	srand(time(0)); // random initialisieren
 	this->_octaveCount = octaveCount;
 	_octaves = new Octave * [octaveCount];

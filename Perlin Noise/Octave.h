@@ -7,10 +7,10 @@
 class Octave
 {
 public:
-	Octave(int intervals, float stepSize, int rang) 
-		: _intervals(intervals), _stepSize(stepSize), _rank(rang)
+	Octave(int intervals, float stepSize, int rank) 
+		: _intervals(intervals), _stepSize(stepSize), _rank(rank)
 	{
-		std::cout << "Instantiated Octave with rank " << rang << std::endl;
+		std::cout << "Initialized Octave with rank " << rank << std::endl;
 		createStructures();
 		initialize();
 	}
@@ -20,15 +20,15 @@ public:
 
 private:
 	int _intervals; // How many seconds 
-	float _stepSize; // How big are the steps between two interpolations
 	int _rank;
 	int _signalCount; // How many fix points does the octave have
-	float* _valsToWrite;
 	int _writeIndex = 0;
 	int _totalValCount; // How many values are being written in total
 
 	float* _signalTimes = nullptr; 
 	float* _signalValues = nullptr;
+	float* _valsToWrite;
+	float _stepSize; // How big are the steps between two interpolations
 
 	double S_t(double t)
 	{
