@@ -1,38 +1,18 @@
 #pragma once
-#include <cmath>
-#include <fstream>
+#include <iostream>
 #include <ctime>
-#include <string>
+#include "Octave.h"
 
 class NoiseCreator
 {
 public:
-	NoiseCreator(int rang, int intervals);
+	NoiseCreator(int octaveCount, int intervals);
 	void Create();
 
 private:
-	void SetInitVals(int rang);
-	void Initialize();
-	double S_t(double t)
-	{
-		return pow(t, 3) * (10 + t * (-15 + 6 * t));
-	}
-	void formatAndWrite(double value)
-	{
-		std::string number = std::to_string(value); // Im skript O
-		size_t found = number.find(".");
-		if (found != std::string::npos) // only for google tables
-			number[found] = ',';
 
-		stream << number << std::endl;
-	}
-
-
-	std::ofstream stream;
-	float* signalTimes = nullptr;
-	float* signalValues = nullptr;
-	float stepSize = 0;
-	int signalCount = 0;
-	int intervals;
+	int _octaveCount;
+	float _timeStep = 0.01f; // Zeitschritt für Berechnung
+	Octave** _octaves;
 };
 
