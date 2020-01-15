@@ -7,8 +7,8 @@
 class Octave
 {
 public:
-	Octave(int intervals, float stepSize, int rank) 
-		: _intervals(intervals), _stepSize(stepSize), _rank(rank)
+	Octave(int intervals, float _tickSize, int rank) 
+		: _intervals(intervals), _tickSize(_tickSize), _rank(rank)
 	{
 		std::cout << "Initialized Octave with rank " << rank << std::endl;
 		createStructures();
@@ -17,6 +17,11 @@ public:
 
 	void create();
 	bool write();
+
+	float& operator[] (int i)
+	{
+		return _valsToWrite[i];
+	}
 
 private:
 	int _intervals; // How many seconds 
@@ -28,7 +33,7 @@ private:
 	float* _signalTimes = nullptr; 
 	float* _signalValues = nullptr;
 	float* _valsToWrite;
-	float _stepSize; // How big are the steps between two interpolations
+	float _tickSize; // How big are the steps between two interpolations
 
 	double S_t(double t)
 	{

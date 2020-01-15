@@ -12,7 +12,7 @@ void Octave::create()
 
 	while(true)
 	{
-		currentTime += _stepSize; // erhöhen des Zeitcounter um den Zeitschritt
+		currentTime += _tickSize; // erhöhen des Zeitcounter um den Zeitschritt
 
 		if (_writeIndex >= _totalValCount)
 			return;
@@ -44,7 +44,7 @@ bool Octave::initialize()
 {
 	this->_stream.open(std::to_string(_rank) + ".txt"); // initialisiere Stream zum speichern von Werten
 
-	_totalValCount = _intervals / _stepSize;
+	_totalValCount = _intervals / _tickSize;
 	_valsToWrite = new float[_totalValCount];
 
 	float signalDiffTime = _rank == 1 ? 1 : 1.f / ((float)_signalCount - 1); // wie viel Zeit vergeht zwischen den einzelnen Fixpunkten

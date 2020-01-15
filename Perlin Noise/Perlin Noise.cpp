@@ -3,6 +3,6 @@
 
 int main()
 {
-	NoiseCreator creator(3, 1);
+	NoiseCreator creator(5, 3);
 	creator.Create();
 }
