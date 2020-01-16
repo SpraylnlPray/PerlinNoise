@@ -1,8 +1,9 @@
 #pragma once
-#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <random>
+#include <chrono>
 
 class Octave
 {
@@ -15,13 +16,15 @@ public:
 		initialize();
 	}
 
-	void create();
-	bool write();
+	void Create();
+	bool Write();
 
 	float& operator[] (int i)
 	{
 		return _valsToWrite[i];
 	}
+
+	std::string GetFileName() { return _fileName; }
 
 private:
 	int _intervals; // How many seconds 
@@ -45,5 +48,7 @@ private:
 	bool save(double value);
 
 	std::ofstream _stream;
+
+	std::string _fileName;
 };
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Octave.h"
 
-void Octave::create()
+void Octave::Create()
 {
 	int signalIndex = 0;
 	float currentTime = _signalTimes[signalIndex];
@@ -42,7 +42,9 @@ bool Octave::createStructures()
 
 bool Octave::initialize()
 {
-	this->_stream.open(std::to_string(_rank) + ".txt"); // initialisiere Stream zum speichern von Werten
+	srand(time(0)); // random initialisieren
+	this->_fileName = std::to_string(_rank) + ".txt";
+	this->_stream.open(_fileName); // initialisiere Stream zum speichern von Werten
 
 	_totalValCount = _intervals / _tickSize;
 	_valsToWrite = new float[_totalValCount];
@@ -54,30 +56,27 @@ bool Octave::initialize()
 
 	for (int i = 1; i < _signalCount * _intervals - 1; i++) // speichern der Zeiten von Fixpunkten
 	{
-		_signalTimes[i] = signalDiffTime;
-		signalDiffTime += signalDiffTime;
+		_signalTimes[i] = _signalTimes[i - 1] + signalDiffTime;
 	}
+
+	unsigned seed1 = std::chrono::system_clock::now().time_since_epoch().count();
+	std::minstd_rand0 g1(seed1);
 
 	for (int i = 0; i < _signalCount * _intervals; i++) 	// erstellen der Fixwerte
 	{
-		float signalValue = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); // random from 0 to 1 inclusive
-		_signalValues[i] = signalValue;
+		float signalValue = g1();
+		_signalValues[i] = signalValue / g1.max();
 	}
 
 	return false;
 }
 
-bool Octave::write()
+bool Octave::Write()
 {
 	std::cout << "Octave with rank " << _rank << " writes values" << std::endl;
 	for (int i = 0; i < _writeIndex; i++)
 	{
-		std::string number = std::to_string(_valsToWrite[i]); // Im skript O
-		size_t found = number.find(".");
-		if (found != std::string::npos) // only for google tables
-			number[found] = ',';
-
-		_stream << number << std::endl;
+		_stream << _valsToWrite[i] << std::endl;
 	}
 
 	return false;
