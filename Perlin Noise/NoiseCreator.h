@@ -12,8 +12,8 @@ public:
 	void WriteConfig();
 
 private:
-	void Weigh();
-	bool WriteValues();
+	void weigh();
+	bool writeValues();
 
 	int _totalValCount; // How many values are being written in total
 	int _octaveCount;

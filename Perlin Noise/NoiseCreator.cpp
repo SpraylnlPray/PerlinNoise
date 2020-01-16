@@ -26,8 +26,8 @@ void NoiseCreator::Create()
 		_octaves[i]->Write();
 	}
 
-	Weigh();
-	WriteValues();
+	weigh();
+	writeValues();
 }
 
 void NoiseCreator::WriteNames()
@@ -51,7 +51,7 @@ void NoiseCreator::WriteConfig()
 		_stream.close();
 }
 
-void NoiseCreator::Weigh()
+void NoiseCreator::weigh()
 {
 	std::cout << "Noise Creator creating weigh over all octaves" << std::endl;
 	for (int octaveIndex = 0; octaveIndex < _octaveCount; octaveIndex++)
@@ -64,7 +64,7 @@ void NoiseCreator::Weigh()
 	}
 }
 
-bool NoiseCreator::WriteValues()
+bool NoiseCreator::writeValues()
 {
 	std::cout << "Noise Creator writing weighed noise" << std::endl;
 	this->_stream.open(_averageFileName);
