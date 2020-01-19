@@ -4,12 +4,15 @@
 #include <string>
 #include <random>
 #include <chrono>
+#include "Signal.h"
+
+class NoiseCreator;
 
 class Octave
 {
 public:
-	Octave(int intervals, float _tickSize, int rank) 
-		: _intervals(intervals), _tickSize(_tickSize), _rank(rank)
+	Octave(int intervals, float _tickSize, int rank, NoiseCreator* creator) 
+		: _intervals(intervals), _tickSize(_tickSize), _rank(rank), _creator(creator)
 	{
 		std::cout << "Initialized Octave with rank " << rank << std::endl;
 		createStructures();
@@ -33,8 +36,10 @@ private:
 	int _writeIndex = 0;
 	int _totalValCount; // How many values are being written in total
 
-	float* _signalTimes = nullptr; 
-	float* _signalValues = nullptr;
+	Signal** _signals = nullptr;
+
+	float** _signalTimes = nullptr; 
+	float** _signalValues = nullptr;
 	float* _valsToWrite;
 	float _tickSize; // How big are the steps between two interpolations
 
@@ -45,10 +50,12 @@ private:
 
 	bool createStructures();
 	bool initialize();
-	bool save(double value);
+	bool save(int line, float value);
 
 	std::ofstream _stream;
 
 	std::string _fileName;
+
+	NoiseCreator* _creator;
 };
 

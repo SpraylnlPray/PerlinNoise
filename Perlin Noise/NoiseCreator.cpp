@@ -13,9 +13,12 @@ NoiseCreator::NoiseCreator(int octaveCount, int secs)
 	_seconds = secs;
 	_totalValCount = _seconds / _timeStep;
 	_weighed = new float[_totalValCount] {};
+	_memory = new float* [_totalValCount] {};
+	for (int i = 0; i < _totalValCount; i++)
+		_memory[i] = new float[_totalValCount];
 
 	for (int i = 0; i < octaveCount; i++)
-		_octaves[i] = new Octave(secs, this->_timeStep, i + 1);
+		_octaves[i] = new Octave(secs, this->_timeStep, i + 1, this);
 }
 
 void NoiseCreator::Create()
@@ -23,11 +26,11 @@ void NoiseCreator::Create()
 	for (int i = 0; i < _octaveCount; i++)
 	{
 		_octaves[i]->Create();
-		_octaves[i]->Write();
+		// _octaves[i]->Write();
 	}
-
-	weigh();
-	writeValues();
+	printVals();
+	//weigh();
+	//writeValues();
 }
 
 void NoiseCreator::WriteNames()
@@ -76,4 +79,35 @@ bool NoiseCreator::writeValues()
 		_stream.close();
 
 	return false;
+}
+
+void NoiseCreator::printVals()
+{
+	//for (int i = 0; i < _totalValCount; i++)
+	//{
+	//	for (int j = 0; j < _totalValCount; j++)
+	//	{
+	//		std::cout << _memory[i][j] << " ";
+	//	}
+	//	std::cout << std::endl;
+	//}
+
+	std::cout << "writing xy values" << std::endl;
+	this->_stream.open("xy.txt");
+	for (int i = 0; i < _totalValCount; i++)
+	{
+		for (int j = 0; j < _totalValCount; j++)
+		{
+			_stream << _memory[i][j] << " ";
+		}
+		_stream << std::endl;
+	}
+	if (_stream.is_open())
+		_stream.close();
+
+}
+
+void NoiseCreator::Save(int row, int index, float value)
+{
+	_memory[row][index] = value;
 }

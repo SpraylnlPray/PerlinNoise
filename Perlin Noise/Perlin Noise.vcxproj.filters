@@ -24,6 +24,9 @@
     <ClInclude Include="Octave.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Signal.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -36,6 +39,9 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Octave.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Signal.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
